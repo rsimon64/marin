@@ -1,0 +1,97 @@
+---
+title: "Documentación de Collecta"
+output: 
+  flexdashboard::flex_dashboard:
+     orientation: rows
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(ggplot2)
+library(plotly)
+library(magrittr)
+library(stringr)
+
+fp <- system.file("db/2- BASE DE DATOS MUESTREO ROYA EN CAMPO-3.xlsx",
+                    package = "marin")
+tbl <- marin:::import_tbl(fp)
+```
+
+Resúmen
+=====================================
+
+Row
+-----------------------------------------------------------------------
+
+### Número especies colectados {.value-box}
+
+```{r}
+especies <- sapply(tbl$Variedad, stringr::str_split, ", ") %>% 
+  unlist %>% unique %>% sort
+
+renderValueBox({
+valueBox(
+    value = length(especies),
+    icon = "fa-area-chart",
+    color = "darkgreen"
+  )
+})
+```
+
+### Número muestras colectados {.value-box}
+
+```{r}
+renderValueBox({
+valueBox(
+    value = sum(as.integer(tbl$TubosColectados)),
+    icon = "fa-area-chart",
+    color = "darkgreen"
+  )
+})
+```
+
+### Número dias colectadas {.value-box}
+
+```{r}
+renderValueBox({
+valueBox(
+    value = length(unique(tbl$FechaColecta)),
+    icon = "fa-area-chart",
+    color = "darkgreen"
+  )
+})
+```
+
+### Número sitios colectados {.value-box}
+```{r}
+renderValueBox({
+valueBox(
+    value = nrow(tbl),
+    icon = "fa-area-chart",
+    color = "darkgreen"
+  )
+})
+```
+
+
+Row
+-----------------------------------------------------------------------
+
+### Mapa
+
+```{r}
+library(marin)
+
+marin:::plot_map(tbl)
+
+```
+
+
+### Diario
+```{r}
+p <- ggplot2::ggplot(data = tbl, aes(x = FechaColecta, y = TubosColectados)) +
+      geom_col()
+ggplotly(p)
+```
+
