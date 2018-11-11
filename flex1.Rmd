@@ -2,7 +2,7 @@
 title: "Documentación de Collecta"
 output: 
   flexdashboard::flex_dashboard:
-     orientation: rows
+     orientation: columns
 runtime: shiny
 ---
 
@@ -13,67 +13,121 @@ library(plotly)
 library(magrittr)
 library(stringr)
 
-fp <- system.file("db/2- BASE DE DATOS MUESTREO ROYA EN CAMPO-3.xlsx",
-                    package = "marin")
-tbl <- marin:::import_tbl(fp)
+# fp <- system.file("db/2- BASE DE DATOS MUESTREO ROYA EN CAMPO-3.xlsx",
+#                     package = "marin")
+# tbl <- marin:::import_tbl(fp)
 ```
+
+
+
 
 Resúmen
 =====================================
-
-Row
+Inputs {.sidebar data-width=200}
 -----------------------------------------------------------------------
 
-### Número especies colectados {.value-box}
+```{r}
+# shiny inputs defined here
+
+fileInput("datafile", "Datos de usuario (.xlsx formato)")
+
+userFile <- reactive({
+    # If no file is selected, don't do anything
+    validate(need(input$datafile, message = FALSE))
+    input$datafile
+  })
+
+tbl <- reactive({
+    marin:::import_tbl(userFile()$datapath)
+  })
+
+  # We can run observers in here if we want to
+  # observe({
+  #   msg <- sprintf("File %s was uploaded", userFile()$name)
+  #   cat(msg, "\n")
+  # })
+
+```
+
+column {data-width=100}
+-----------------------------------------------------------------------
+
+### Especies colectados {.value-box}
 
 ```{r}
-especies <- sapply(tbl$Variedad, stringr::str_split, ", ") %>% 
-  unlist %>% unique %>% sort
+
 
 renderValueBox({
+especies <- sapply(tbl()$Variedad, stringr::str_split, ", ") %>% 
+  unlist %>% unique %>% sort  
+  
 valueBox(
     value = length(especies),
-    icon = "fa-area-chart",
+    # icon = "fa-area-chart",
     color = "darkgreen"
   )
 })
 ```
 
-### Número muestras colectados {.value-box}
+### Muestras colectadas {.value-box}
 
 ```{r}
 renderValueBox({
 valueBox(
-    value = sum(as.integer(tbl$TubosColectados)),
-    icon = "fa-area-chart",
+    value = sum(as.integer(tbl()$TubosColectados)),
+    # icon = "fa-area-chart",
     color = "darkgreen"
   )
 })
 ```
 
-### Número dias colectadas {.value-box}
+
+
+### Sitios colectados {.value-box}
+```{r}
+renderValueBox({
+valueBox(
+    value = nrow(tbl()),
+    # icon = "fa-area-chart",
+    color = "darkgreen"
+  )
+})
+```
+
+### Provincias colectadas {.value-box}
+```{r}
+renderValueBox({
+valueBox(
+    value = tbl()$Provincia %>% unique %>% length(),
+    # icon = "fa-area-chart",
+    color = "darkgreen"
+  )
+})
+```
+
+
+### Estados fenológicos encontrados {.value-box}
+```{r}
+renderValueBox({
+valueBox(
+    value = tbl()$EstadoFenologico %>% unique() %>% sort %>% length(),
+    # icon = "fa-area-chart",
+    color = "darkgreen"
+  )
+})
+```
+
+### Dias de colecta {.value-box}
 
 ```{r}
 renderValueBox({
 valueBox(
-    value = length(unique(tbl$FechaColecta)),
-    icon = "fa-area-chart",
+    value = length(unique(tbl()$FechaColecta)),
+    # icon = "fa-area-chart",
     color = "darkgreen"
   )
 })
 ```
-
-### Número sitios colectados {.value-box}
-```{r}
-renderValueBox({
-valueBox(
-    value = nrow(tbl),
-    icon = "fa-area-chart",
-    color = "darkgreen"
-  )
-})
-```
-
 
 Row
 -----------------------------------------------------------------------
@@ -81,17 +135,50 @@ Row
 ### Mapa
 
 ```{r}
-library(marin)
 
-marin:::plot_map(tbl)
+leaflet::renderLeaflet({
+  marin:::plot_map(tbl())
+})
+
 
 ```
 
-
+Column
+-----------------------------------------------------------------------
 ### Diario
 ```{r}
-p <- ggplot2::ggplot(data = tbl, aes(x = FechaColecta, y = TubosColectados)) +
+renderPlot({
+  p <- ggplot2::ggplot(data = tbl(), aes(x = FechaColecta, y = TubosColectados)) +
       geom_col()
-ggplotly(p)
+p
+})
+
+```
+
+### Altitud (densidad)
+```{r}
+renderPlot({
+ p <- ggplot(tbl(), aes(x=Latd, y=Altitud)) +
+  geom_point()
+ 
+ p
+})
+
+```
+
+Data
+=======================================================================
+
+
+```{r}
+fillCol(
+  rhandsontable::rHandsontableOutput("datatable")
+)
+
+
+output$datatable <- rhandsontable::renderRHandsontable({
+  rhandsontable::rhandsontable(tbl()) %>% 
+    rhandsontable::hot_col(col = 1:14,  allowInvalid = TRUE)
+})
 ```
 
