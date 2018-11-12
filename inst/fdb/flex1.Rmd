@@ -12,6 +12,8 @@ library(ggplot2)
 library(plotly)
 library(magrittr)
 library(stringr)
+library(crosstalk)
+library(shiny)
 
 # fp <- system.file("db/2- BASE DE DATOS MUESTREO ROYA EN CAMPO-3.xlsx",
 #                     package = "marin")
@@ -40,6 +42,8 @@ userFile <- reactive({
 tbl <- reactive({
     marin:::import_tbl(userFile()$datapath)
   })
+
+shared_tbl <- SharedData$new(tbl)
 
   # We can run observers in here if we want to
   # observe({
@@ -137,6 +141,8 @@ Row
 ```{r}
 
 leaflet::renderLeaflet({
+  # df <- debounce(reactive(shared_tbl$data(withSelection = TRUE)), 250)
+  
   marin:::plot_map(tbl())
 })
 
@@ -148,7 +154,7 @@ Column
 ### Diario
 ```{r}
 renderPlot({
-  p <- ggplot2::ggplot(data = tbl(), aes(x = FechaColecta, y = TubosColectados)) +
+  p <- ggplot2::ggplot(data = shared_tbl, aes(x = FechaColecta, y = TubosColectados)) +
       geom_col()
 p
 })
@@ -158,7 +164,7 @@ p
 ### Altitud (densidad)
 ```{r}
 renderPlot({
- p <- ggplot(tbl(), aes(x=Latd, y=Altitud)) +
+ p <- ggplot(shared_tbl, aes(x=Latd, y=Altitud)) +
   geom_point()
  
  p
@@ -171,14 +177,15 @@ Data
 
 
 ```{r}
-fillCol(
-  rhandsontable::rHandsontableOutput("datatable")
-)
+# fillCol(
+#   rhandsontable::rHandsontableOutput("datatable")
+# )
 
 
-output$datatable <- rhandsontable::renderRHandsontable({
+# output$datatable <- 
+rhandsontable::renderRHandsontable({
   rhandsontable::rhandsontable(tbl()) %>% 
-    rhandsontable::hot_col(col = 1:14,  allowInvalid = TRUE)
+    rhandsontable::hot_col(col = c(1:4, 6, 9:11, 13, 15),  allowInvalid = TRUE)
 })
 ```
 
