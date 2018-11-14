@@ -6,5 +6,10 @@
 #' @import shinydashboard
 #' @export
 marin <- function() {
-  shiny::runApp(system.file("marin", package = "marin"))
+
+  fp <- system.file("fdb/flex1.Rmd", package = "marin")
+
+  # shiny::runApp()
+
+  rmarkdown::run(fp)
 }

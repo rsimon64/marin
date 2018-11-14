@@ -67,8 +67,8 @@ especies <- sapply(tbl()$Variedad, stringr::str_split, ", ") %>%
   
 valueBox(
     value = length(especies),
-    # icon = "fa-area-chart",
-    color = "darkgreen"
+    icon = "fa-area-chart",
+    color = "green"
   )
 })
 ```
@@ -79,8 +79,8 @@ valueBox(
 renderValueBox({
 valueBox(
     value = sum(as.integer(tbl()$TubosColectados)),
-    # icon = "fa-area-chart",
-    color = "darkgreen"
+    icon = "fa-area-chart",
+    color = "green"
   )
 })
 ```
@@ -92,8 +92,8 @@ valueBox(
 renderValueBox({
 valueBox(
     value = nrow(tbl()),
-    # icon = "fa-area-chart",
-    color = "darkgreen"
+    icon = "fa-area-chart",
+    color = "green"
   )
 })
 ```
@@ -103,8 +103,8 @@ valueBox(
 renderValueBox({
 valueBox(
     value = tbl()$Provincia %>% unique %>% length(),
-    # icon = "fa-area-chart",
-    color = "darkgreen"
+    icon = "fa-area-chart",
+    color = "green"
   )
 })
 ```
@@ -115,8 +115,8 @@ valueBox(
 renderValueBox({
 valueBox(
     value = tbl()$EstadoFenologico %>% unique() %>% sort %>% length(),
-    # icon = "fa-area-chart",
-    color = "darkgreen"
+    icon = "fa-area-chart",
+    color = "green"
   )
 })
 ```
@@ -127,8 +127,8 @@ valueBox(
 renderValueBox({
 valueBox(
     value = length(unique(tbl()$FechaColecta)),
-    # icon = "fa-area-chart",
-    color = "darkgreen"
+    icon = "fa-area-chart",
+    color = "green"
   )
 })
 ```
