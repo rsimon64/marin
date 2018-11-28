@@ -6,7 +6,7 @@ Author: Reinhard Simon
 Maintainer: Reinhard Simon <rsimon64@gmail.com>
 Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
-Imports: shiny, leaflet, stringr, magrittr, shinydashboard
+Imports: shiny, leaflet, stringr, magrittr, shinydashboard, d3scatter
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
